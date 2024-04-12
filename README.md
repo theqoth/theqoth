@@ -59,3 +59,47 @@ status_label = tk.Label(root, text="")
 status_label.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 
 root.mainloop()
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+# ฟังก์ชันสำหรับส่งอีเมล์
+def send_email(receiver_email, subject, body):
+    sender_email = "your_email@example.com"  # อีเมล์ผู้ส่ง
+    password = "your_email_password"  # รหัสผ่านอีเมล์ผู้ส่ง
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = subject
+
+    message.attach(MIMEText(body, "plain"))
+
+    with smtplib.SMTP_SSL("smtp.example.com", 465) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+
+# ฟังก์ชันสำหรับลางาน
+def request_leave():
+    employee_name = input("Enter employee name: ")
+    start_date = input("Enter start date of leave (YYYY-MM-DD): ")
+    end_date = input("Enter end date of leave (YYYY-MM-DD): ")
+    hours = int(input("Enter number of hours for leave: "))
+    day_off = input("Enter day off (if applicable): ")
+
+    # ส่งอีเมล์ไปยังหัวหน้าแผนกและหัวหน้าฝ่าย
+    department_head_email = "department_head@example.com"
+    division_head_email = "division_head@example.com"
+    leave_details = f"Employee: {employee_name}\nStart Date: {start_date}\nEnd Date: {end_date}\nHours: {hours}\nDay Off: {day_off}"
+    send_email(department_head_email, "Leave Request", leave_details)
+    send_email(division_head_email, "Leave Request", leave_details)
+    
+    # เด้งข้อมูลไปยังทรัพยากรบุคคล
+    hr_email = "hr@example.com"
+    hr_message = f"Leave request for employee {employee_name} has been sent.\nDetails:\n{leave_details}"
+    send_email(hr_email, "Leave Request", hr_message)
+    print("Leave request sent successfully!")
+
+# เรียกใช้งานฟังก์ชัน request_leave
+request_leave()
+
